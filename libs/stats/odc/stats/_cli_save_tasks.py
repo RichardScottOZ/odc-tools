@@ -24,7 +24,7 @@ from ._cli_common import main
     help="Only extract datasets for a given year. This is a shortcut for --temporal-range=<int>--P1Y",
 )
 @click.option(
-    "--temporal_range",
+    "--temporal-range",
     type=str,
     help="Only extract datasets for a given time range, Example '2020-05--P1M' month of May 2020",
 )
