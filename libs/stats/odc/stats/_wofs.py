@@ -78,14 +78,12 @@ class StatsWofs(StatsPluginInterface):
 
     def reduce(self, xx: xr.Dataset) -> xr.Dataset:
         count_wet = xx.wet.sum(axis=0, dtype="uint16")
-        count_dry = xx.dry.sum(axis=0, dtype="uint16")
 
-        # TODO: change to (count_wet+count_dry) once dry/wet are exclusive
-        n = (xx.wet + xx.dry).sum(axis=0, dtype="uint16")
-        frequency = count_wet.astype("float32") / n
+        count_clear = (xx.wet + xx.dry).sum(axis=0, dtype="uint16")
+        frequency = count_wet.astype("float32") / count_clear
 
         return xr.Dataset(
-            dict(count_wet=count_wet, count_dry=count_dry, frequency=frequency)
+            dict(count_wet=count_wet, count_clear=count_clear, frequency=frequency)
         )
 
     def rgba(self, xx: xr.Dataset) -> Optional[xr.DataArray]:
