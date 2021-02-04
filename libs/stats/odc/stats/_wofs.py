@@ -45,12 +45,12 @@ class StatsWofs(StatsPluginInterface):
             href=f"https://collections.digitalearth.africa/product/{name}",
         )
 
-    def _native_tr(xx):
+    def _native_tr(self, xx):
         wet = xx.water == 128
         dry = xx.water == 0
         return xr.Dataset(dict(wet=wet, dry=dry))
 
-    def _fuser(xx):
+    def _fuser(self, xx):
         from odc.algo._masking import _or_fuser
 
         xx = xx.map(_or_fuser)
