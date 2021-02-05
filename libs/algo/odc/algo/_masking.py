@@ -257,6 +257,38 @@ def from_float(x, dtype, nodata, scale=1, offset=0):
     return xr.DataArray(data, dims=x.dims, coords=x.coords, name=x.name, attrs=attrs)
 
 
+def safe_div_np(
+    a: np.ndarray, b: np.ndarray, dtype="float32", out: Optional[np.ndarray] = None
+) -> np.ndarray:
+    assert a.shape == b.shape
+    dtype = np.dtype(dtype)
+
+    if out is None:
+        out = np.empty_like(a, dtype=dtype)
+    else:
+        assert out.shape == a.shape
+
+    params = dict(a=a, b=b, nan=dtype.type("nan"), _1=dtype.type(1))
+    expr = "where(b == 0, nan, (_1*a)/b)"
+
+    ne.evaluate(expr, local_dict=params, out=out, casting="safe")
+
+    return out
+
+
+def safe_div(a, b, dtype="float32"):
+    attrs = a.attrs.copy()
+
+    if dask.is_dask_collection(a.data):
+        data = da.map_blocks(
+            safe_div_np, a.data, b.data, dtype, dtype=dtype, name=randomize("safe_div"),
+        )
+    else:
+        data = safe_div_np(a.data, b.data, dtype=dtype)
+
+    return xr.DataArray(data, dims=a.dims, coords=a.coords, name=a.name, attrs=attrs)
+
+
 def _impl_to_bool(x, m):
     return ((1 << x) & m) > 0
 

@@ -22,6 +22,7 @@ from ._masking import (
     binary_closing,
     binary_dilation,
     binary_erosion,
+    safe_div,
 )
 
 from ._geomedian import (
